@@ -24,10 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
+#include <math.h>           /* Library added for ABS function usage */
 #include "module1.h"
 
-// Funkcja MAIN
+// MAIN FUNCTION
 
 int main() {
   Image image;
@@ -37,17 +37,17 @@ int main() {
   int a;
 
   printf("Welcome to image processing app!\n");
-  /* Wczytanie zawartosci wskazanego fileu do pamieci */
+  /* Read selected file to the memory */
   printf("Your file name:\n");
   scanf("%s", name);
   file = fopen(name,"r");
 
-  if (file != NULL)    /* co spowoduje zakomentowanie tego warunku */
+  if (file != NULL)
     read = read(file, &image);
   if (read != 0)
     show(name);
 
-  /* MENU UZYTKOWNIKA */
+  /*USER'S  MENU */
 
   printf("What should I do with this loaded image?\n");
       printf("1 - Negative\n");
@@ -58,11 +58,11 @@ int main() {
       printf("6 - Save and show changes\n");
       printf("7 - Exit the app\n");
 
-  while(a !=7 ) {  /* Warunek konca petli, konczy tez dzialanie programu */
+  while(a != 7 ) {  /* When a is 7, exit the app */
     scanf("%d", &a);
 
     switch (a) {
-      /* Wywolujemy funkcje i informujemy o tym uzytkownika */
+      /* We run the function on image and inform user about it */
      case 1:
        negative(&image);
        printf("Negative done correctly!\n");
