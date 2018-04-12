@@ -1,24 +1,18 @@
-/* Rafal Krokowski, Przetwarzanie Obrazow 1, 29.11.16r.
+/* Rafal Krokowski, Image Processing 1, 29.11.16r.
 
-   Funkcja czytaj oraz wyswietl zostaly zaimplementowane z funkcji
-   odczyt.c nalezacej do dr.inz.Muszynskiego.
+   Read() and show() functions has been implemented from
+   function 'odczyt.c' which is dr.inz.Muszynski intellectual property.
 
-   TESTY:
-   Program byl sprawdzany dla fileow w formacie PGM znajdujacych sie
-   na diablo w folderze imageki/, konkretnie dla imageow kubus.pgm i
-   Lena.pgm. Po wybraniu metody przetwarzania imageu i wywolaniu pozycji
-   "Zapisz i wyswietl" z menu, automatycznie wlacza sie program display,
-   ktory wyswietla 2 OBRAZY - pierwotny i przetworzony - dla wygody
-   porownania zmian. Dzieje sie tak dopoki nie zakonczymy dzialania
-   programu w menu.
+   TESTS:
+   App was tested for files in the PGM format. After chosing image
+   processing function from main menu and running 'Save and show changes',
+   display program automatically fires and displays 2 IMAGES - original
+   ond processed one - for simplicity of compraing changes. Changes are
+   added incrementally until we end the program.
 
-   Uwaga: Obraz kubus.pgm pozostanie wlasciwie niezmieniony w wyniku
-   rozciagania histogramu z powodu swojej malej rozdzielczosci - nalezy
-   wykorzystac tu inny image, np. Lena.pgm.
-
-   Odpowiednie funkcje programu posiadaja potrzebne komentarze, jednak
-   bardziej oczywiste fragmenty kodu bronia sie same (sa dosc oczywiste)
-   i nie wymagaja wyjasnienia.
+   Warning: Histogram equalization seems to has no effect if we use
+            low resolution image. I strongly recommend using higher
+            quality images.
 */
 
 #include <stdio.h>
