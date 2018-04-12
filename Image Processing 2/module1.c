@@ -77,17 +77,6 @@ int read(FILE *input_file, Image *image) {
   return image->x * image->y;   /* Successful read so */
 }                               /* Return amount of all pixels */
 
-/* Wyswietlenie imageu o zadanej nazwie za pomoca thresholdramu "display"   */
-void show(char *n_pliku) {
-  char polecenie[LINE_LENGTH];      /* buffor pomocniczy do zestawienia polecenia */
-
-  strcpy(polecenie, "display ");   /* konstrukcja polecenia postaci */
-  strcat(polecenie, n_pliku);     /* display "nazwa_pliku" &       */
-  strcat(polecenie, " &");
-  printf("%s\n", polecenie);      /* wydruk contourolny polecenia */
-  system(polecenie);             /* wykonanie polecenia        */
-}
-
 // Display image with "display" program
 void show(char *file_name) {
   char command[LINE_LENGTH];      /* Helper buffer for concatenating command */

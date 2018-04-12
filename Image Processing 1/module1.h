@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <math.h>           /* Library added for ABS function usage */
 
-#define MAX 512            /* Maximum size of loaded image */
-#define LINE_LENGTH 1024      /* Helper buffers length */
+#define MAX 512             /* Maximum size of loaded image */
+#define LINE_LENGTH 1024    /* Helper buffers length */
 
 typedef struct {
   int x, y, greys;

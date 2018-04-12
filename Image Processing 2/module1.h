@@ -29,8 +29,8 @@ typedef struct {
 } Image;
 
 int  read(FILE *input_file, Image *image);
-void show(char *n_pliku);
-void save(options *plik, Image *image);
+void show(char *file_name);
+void save(options *file, Image *image);
 void negative(Image *image);
 void threshold(Image *image);
 void halfThreshold(Image *image);
