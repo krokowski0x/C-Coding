@@ -1,28 +1,28 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
+#include <math.h>           /* Library added for ABS function usage */
 #include "module1.h"
 
-// Funkcja odczytu pliku
+// File reading function
 int read(FILE *input_file, Image *image) {
-  char buff[LINE_LENGTH];      /* buffor pomocniczy do czytania naglowka i komentarzy */
-  int character;                /* zmienna pomocnicza do czytania komentarzy */
-  int end = 0;          /* czy napotkano end danych w pliku */
-  int i,j;
+  char buff[LINE_LENGTH];   /* Helper buffer for reading comments and additional info */
+  int character;            /* Helper variable for reading comments */
+  int end = 0;              /* Is it EOF yet? */
+  int i, j;
 
-  /*Sprawdzenie czy podano prawid�owy uchwyt pliku */
+  // Check if there's a correct file handle
   if (input_file == NULL) {
     fprintf(stderr, "Error: No file handle\n");
     return(0);
   }
 
-  /* Sprawdzenie "numeru magicznegativeo" */
-  if (fgets(buff,LINE_LENGTH, input_file) == NULL)   /* Wczytanie pierwszej linii pliku do buffora */
-    end = 1;                              /* Nie udalo sie? Koniec danych! */
+  // Checking for "magic number" - should be P2 */
+  if (fgets(buff, LINE_LENGTH, input_file) == NULL)   /* Read first line to the buffer */
+    end = 1;                                          /* Didn't succeed? EOF! */
 
-  if ( (buff[0] != 'P') || end) {  /* Czy jest magiczne "P"? */
-    fprintf(stderr, "Error: File not found\n");
+  if ( (buff[0] != 'P') || (buff[1]!='2') || end ) {  /* Is there a magic "P2"? */
+    fprintf(stderr, "Error: File type is not PGM\n");
     return(0);
   }
 
@@ -35,24 +35,24 @@ int read(FILE *input_file, Image *image) {
       fprintf(stderr, "Error: File not found\n");
   return(0);
 
-  /* Pominiecie komentarzy */
+  // Skip these comments
   do {
-    if ((character = fgetc(input_file)) == '#') {         /* Czy linia rozpoczyna sie od characteru '#'? */
-      if (fgets(buff, LINE_LENGTH, input_file) == NULL)  /* Przeczytaj ja do buffora                */
-	      end = 1;                   /* Zapamietaj ewentualny end danych */
-    } else {
-      ungetc(character, input_file);                   /* Gdy przeczytany character z poczatku linii */
-    }                                         /* nie jest '#' zwroc go                 */
-  } while (character == '#' && !end);   /* Powtarzaj dopoki sa linie komentarza */
-                                    /* i nie nastapil end danych         */
+    if ((character = fgetc(input_file)) == '#') {         /* Is the line starting at '#'? */
+      if (fgets(buff,LINE_LENGTH,input_file) == NULL)     /* Read it to buffer */
+	      end = 1;                                          /* If EOF, remember it */
+    }  else {
+      ungetc(character, input_file);    /* If the first character in line */
+    }                                   /* is not '#', return it */
+  } while (character == '#' && !end);   /* Keep doin' it until there are comments */
+                                        /* or the EOF */
 
-  /* Pobranie wymiarow imageu i liczby odcieni greys */
+  // Getting image size and shades of grey
   if (fscanf(input_file, "%d %d %d", image->x, image->y, image->greys) != 3) {
     fprintf(stderr, "Error: Image size or greys not found\n");
     return(0);
   }
 
-  //Przypadek imageu PPM - konwersja do PGM
+  // If image of type PPM - make it PGM
   if(image->color == 1) {
     for(i = 0; i < image->y; i++) {
       for(j = 0; j < image->x; j++) {
@@ -62,20 +62,20 @@ int read(FILE *input_file, Image *image) {
   }
 
 
-  //Tablica na image PGM
+  // Array for PGM image
   image->imageek = (int *) calloc(image->x * image->y, sizeof(int));
 
-  /* Pobranie imageu PGM i zapisanie w tablicy */
-    for (i = 0; i < image->y; i++) {
-      for (j = 0; j < image->x; j++) {
-	if (fscanf(input_file, "%d", &(image->image_pgm[i][j])) != 1) {
-	  fprintf(stderr, "Error: Wrong image size\n");
-	  return(0);
-	}
+  // Getting image and saving it in pgm_image array
+  for (i = 0; i < image->y; i++) {
+    for (j = 0; j < image->x; j++) {
+      if (fscanf(input_file, "%d", &(image->pgm_image[i][j])) !=1 ) {
+	       fprintf(stderr, "Error: Wrong image size\n");
+	       return(0);
       }
     }
-  return image->x * image->y;   /* Czytanie zakonczone sukcesem    */
-}                                    /* Zwroc liczbe wczytanych pikseli */
+  }
+  return image->x * image->y;   /* Successful read so */
+}                               /* Return amount of all pixels */
 
 /* Wyswietlenie imageu o zadanej nazwie za pomoca thresholdramu "display"   */
 void show(char *n_pliku) {
@@ -88,115 +88,134 @@ void show(char *n_pliku) {
   system(polecenie);             /* wykonanie polecenia        */
 }
 
-// Funkcja zapisujaca edytowany image
+// Display image with "display" program
+void show(char *file_name) {
+  char command[LINE_LENGTH];      /* Helper buffer for concatenating command */
 
-void zapisz(w_opcje *plik, Image *image)
-{
+  strcpy(command, "display ");    /* Command has a following syntax: */
+  strcat(command, file_name);     /* display "file_name" & */
+  strcat(command, " &");
+  printf("%s\n", command);        /* Print command for checking */
+  system(command);                /* Run command */
+}
+
+// Saving edited image function
+
+int save(Image *image) {
+  FILE *file;
   int i,j;
-  plik->input_file = fopen("image.pgm", "w");
-  /* Wyswietlamy najpierw informacje o imageie */
-  fprintf(plik->input_file, "P2\n %d %d\n %d\n", image->x, image->y, image->greys);
+  file = fopen("image.pgm","w");
+  /* First, we print image info */
+  fprintf(file, "P2\n %d %d\n %d\n", image->x, image->y, image->greys);
   for (j = 0; j < image->y; j++) {
     for(i = 0; i < image->x; i++) {
-      /* Zapisujemy do pliku kolejne piksele z tablicy */
-      fprintf(plik->input_file, "%d", image->image_pgm[i][j]);
+      /* Then we save it to file pixel by pixel */
+      fprintf(file, "%d\n", image->pgm_image[i][j]);
 	  }
   }
+  return 0;
 }
 
-// Funkcja negativeatywu
+// Negative function
 
-void negative(Image *image)
+int negative(Image *image)
 {
   int i,j;
-  for (j = 0; j < image->y; j++) {
-    for (i = 0; i < image->x; i++) {
-      /* Od maksymalnej wartosci (greys) odejmujemy wartosc danegativeo piksela */
-      image->image_pgm[i][j] = (image->greys - image->image_pgm[i][j]);
+  for (j = 0; j < image->y; j++){
+    for (i = 0; i < image->x; i++){
+      /* For mamximum value (greys) we subtract current pixel value */
+      image->pgm_image[i][j] = (image->greys - image->pgm_image[i][j]);
     }
   }
+  return 0;
 }
 
-// Funkcja thresholdowania
+// Threshold function
 
-void thresholdow(Image *image)
+int threshold(Image *image)
 {
   int a,i,j;
-  float threshold; /* Typ float, poniewaz threshold bedzie ostatecznie ulamkiem */
+  float threshold; /* Float type, becouse threshold will finally be a fraction */
   printf("Enter threshold in percentage:\n");
   scanf("%d", &a);
-  threshold=(a / 100 * (image->greys));
-  for(j = 0; j < image->y; j++){
+  threshold = (a / 100 * (image->greys));
+  for(j = 0; j < image->y; j++) {
     for(i = 0; i < image->x; i++){
-      if(image->image_pgm[i][j] <= threshold)
-	      image->image_pgm[i][j] = 0;
+      if(image->pgm_image[i][j] <= threshold)
+	      image->pgm_image[i][j] = 0;
       else
-	      image->image_pgm[i][j] = image->greys;
+	      image->pgm_image[i][j] = image->greys;
     }
   }
+  return 0;
 }
 
-// Funkcja polthresholdowania bieli
+// White halfthresholding function
 
-void halfThreshold(Image *image)
+int halfThreshold(Image *image)
 {
-  /* Funkcja analogiczna do poprzedniej */
+  /* Same as the one before */
   int a,i,j;
   float threshold;
   printf("Enter threshold in percentage:\n");
   scanf("%d", &a);
   threshold = (a / 100 * (image->greys));
-  for(j = 0; j < image->y; j++){
-    for(i = 0; i < image->x; i++){
-      if(image->image_pgm[i][j] <= threshold)
-	      image->image_pgm[i][j] = image->image_pgm[i][j];
+  for(j = 0; j < image->y; j++) {
+    for(i = 0; i < image->x; i++) {
+      if(image->pgm_image[i][j]<=threshold)
+	      image->pgm_image[i][j] = image->pgm_image[i][j];
       else
-	      image->image_pgm[i][j] = image->greys;
+	      image->pgm_image[i][j] = image->greys;
     }
   }
+  return 0;
 }
 
-// Funkcja contourowania
+// Contouring function
 
-void contour(Image *image)
+int contour(Image *image)
 {
   int i,j;
-  /* Pierwsze i ostatnie piksele nie maja innych 'obok' siebie, a wiec
-     ucinamy po jednym pikselu z kazdej strony */
-  for(i = 0; i < (image->x-1); i++){
-    for(j = 0; j < (image->y-1); j++){
-      /* Wz�r na contourowanie */
-      image->image_pgm[i][j] = abs(image->image_pgm[i+1][j] - image->image_pgm[i][j]) +
-                               abs(image->image_pgm[i][j+1] - image->image_pgm[i][j]);
+  /* First and last pixels does not have others 'by their side'
+     thus we cut one pixel at every side */
+  for(i = 0; i < (image->x - 1); i++){
+    for(j = 0; j < (image->y - 1); j++){
+      /* Contouring equation */
+      image->pgm_image[i][j] = abs(image->pgm_image[i+1][j] - image->pgm_image[i][j]) +
+                               abs(image->pgm_image[i][j+1] - image->pgm_image[i][j]);
     }
   }
-  image->x--;
-  image->y--;
+  /* Tried and true code - something was broken
+     but worked after cutting one more pixel */
+  image->x = image->x--;
+  image->y = image->y--;
+  return 0;
 }
 
-// Funkcja rozciagania histogramu
+// Histogram equalization function
 
-void histogram(Image *image)
+int histogram(Image *image)
 {
   int i,j,lmax,lmin;
-  /* W tej petli thresholdram szuka minimalnej i maksymalnej wartosci */
+  /* In this loop, program seeks for min and max values */
   for(j = 0; j < image->y; j++){
     for(i = 0; i < image->x; i++){
-      if(image->image_pgm[i][j] > lmax)
-	      lmax = image->image_pgm[i][j];
-      if(image->image_pgm[i][j] < lmin)
-	      lmin = image->image_pgm[i][j];
+      if(image->pgm_image[i][j] > lmax)
+	      lmax = image->pgm_image[i][j];
+      if(image->pgm_image[i][j] < lmin)
+	      lmin = image->pgm_image[i][j];
     }
   }
-  /* W tej petli dokonujemy faktycznegativeo rociagniecia */
+  /* In this loop we do actual equalization */
   for(j = 0; j < image->y; j++){
     for(i = 0; i < image->x; i++){
-      image->image_pgm[i][j] = (image->image_pgm[i][j]-lmin) / (lmax-lmin) * (image->greys);
+      image->pgm_image[i][j] = (image->pgm_image[i][j] - lmin) / (lmax-lmin) * (image->greys);
     }
   }
+  return 0;
 }
 
-void reset_options(w_opcje *choice){
+void reset_options(threshold_value *choice){
   choice->input_file = NULL;
   choice->output_file = NULL;
   choice->negative = 0;
@@ -207,84 +226,85 @@ void reset_options(w_opcje *choice){
   choice->histogram = 0;
 }
 
-int process_options(int argc, char **argv, w_opcje *choice) {
+int process_options(int argc, char **argv, threshold_value *choice) {
   int i, threshold;
   char *input_file_name, *output_file_name;
 
   reset_options(choice);
-  choice->output_file = stdout;        /* na wypadek gdy nie podano opcji "-o" */
+  choice->output_file = stdout;   /* If there's no "-o" flag */
 
   for (i = 1; i < argc; i++) {
-    if (argv[i][0] != '-')  /* blad: to nie jest opcja - brak characteru "-" */
+    if (argv[i][0] != '-')        /* Error: It's not a flag - no "-" sign */
       return WRONG_OPTION;
     switch (argv[i][1]) {
-    case 'i': {                 /* opcja z nazwa pliku wejsciowego */
-      if (++i < argc) {   /* wczytujemy kolejny argument jako nazwe pliku */
+    case 'i': {                   /* Input file name flag */
+      if (++i < argc) {           /* Next argument is a file name */
       	input_file_name = argv[i];
-      	if (strcmp(input_file_name, "-")==0) /* gdy nazwa jest "-"        */
-      	  choice->input_file = stdin;            /* ustwiamy wejscie na stdin */
-      	else                               /* otwieramy wskazany plik   */
-      	  choice->input_file=fopen(input_file_name, "r");
+      	if (strcmp(input_file_name, "-") == 0)   /* If the flag is just "-" */
+      	  choice->input_file = stdin;            /* Input file is stdin */
+      	else                                     /* Open that file */
+      	  choice->input_file = fopen(input_file_name, "r");
       } else
-  	     return NO_NAME;                   /* blad: brak nazwy pliku */
+  	     return NO_NAME;  /* Error: No file name */
     break;
     }
-    case 'o': {                 /* opcja z nazwa pliku wyjsciowego */
-      if (++i < argc) {   /* wczytujemy kolejny argument jako nazwe pliku */
+    case 'o': {                 /* Output file name flag */
+      if (++i < argc) {         /* Next argument is a file name */
 	output_file_name = argv[i];
-	if (strcmp(output_file_name, "-") == 0)/* gdy nazwa jest "-"         */
-	  choice->output_file = stdout;          /* ustwiamy wyjscie na stdout */
-	else                              /* otwieramy wskazany plik    */
+	if (strcmp(output_file_name, "-") == 0)  /* If the flag is just "-" */
+	  choice->output_file = stdout;          /* Input file is stdout */
+	else                                     /* Open that file */
 	  choice->output_file = fopen(output_file_name, "w");
       } else
-	return NO_NAME;                   /* blad: brak nazwy pliku */
+	return NO_NAME;  /* Error: No file name */
       break;
     }
     case 'p': {
-      if (++i < argc) { /* wczytujemy kolejny argument jako wartosc thresholdu */
+      if (++i < argc) {   /* Next argument is a threshold value */
 	if (sscanf(argv[i],"%d", &threshold) == 1) {
 	  choice->thresholdow = 1;
 	  choice->threshold_value = threshold;
 	} else
-	  return NO_VALUE;     /* blad: niepoprawna wartosc thresholdu */
+	  return NO_VALUE;     /* Error: Wrong threshold value */
       } else
-	return NO_VALUE;             /* blad: brak wartosci thresholdu */
+	return NO_VALUE;       /* Error: No threshold value */
       break;
     }
     case 'b': {
-      if (++i < argc) { /* wczytujemy kolejny argument jako wartosc thresholdu */
+      if (++i < argc) {  /* Next argument is a threshold value */
 	if (sscanf(argv[i],"%d", &threshold) == 1) {
 	  choice->halfThreshold = 1;
 	  choice->threshold_value = threshold;
 	} else
-	  return NO_VALUE;     /* blad: niepoprawna wartosc thresholdu */
+	  return NO_VALUE;     /* Error: Wrong threshold value */
       } else
-	return NO_VALUE;             /* blad: brak wartosci thresholdu */
+	return NO_VALUE;       /* Error: No threshold value */
       break;
 
-    case 'n': {                 /* mamy wykonac negativeatyw */
+    case 'n': {    /* Negative flag */
       choice->negative = 1;
       break;
     }
-    case 'k': {                 /* mamy wykonac contourowanie */
+    case 'k': {    /* Contouring flag */
       choice->contour = 1;
       break;
     }
-    case 'd': {                 /* mamy showic image */
+    case 'd': {    /* Show image flag */
       choice->show = 1;
       break;
     }
-    case 'h': {
+    case 'h': {    /* Histogram equalization flag */
       choice->histogram = 1;
       break;
     }
-    default:                    /* nierozpoznana opcja */
+    default:
       return WRONG_OPTION;
-    } /*end switch */
-  } /* end for */
+    } /*end of switch statement */
+  } /* end of for loop */
 
-    if(choice->input_file = NULL){
-      return NO_FILE;}
+    if(choice->input_file = NULL) {
+      return NO_FILE;
+    }
     return 0;
   }
 }

@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
+#include <math.h>           /* Library added for ABS function usage */
 #include "module1.h"
 
 int main(int argc, char **argv) {
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     if(choice.negative == 1)
       negative(&image);
     if(choithreshold== 1)
-      threshold&image);
+      threshold()&image);
     if(choice.threshold == 1)
       threshold(&image);
     if(choice.histogram == 1)

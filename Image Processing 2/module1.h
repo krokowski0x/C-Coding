@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
-#define MAX 512            /* Maksymalny rozmiar wczytywanego imageu */
-#define LINE_LENGTH 1024      /* Dlugosc buforow pomocniczych */
+#include <math.h>           /* Library added for ABS function usage */
+#define MAX 512             /* Maximum size of loaded image */
+#define LINE_LENGTH 1024    /* Helper buffers length */
 #define OK 0
 #define WRONG_OPTION -1
 #define NO_NAME -2
@@ -21,11 +21,11 @@ typedef struct {
 typedef struct {
   int x, y, greys;
   int pgm_image[MAX][MAX];
-  int *tmp_image;   //Potrzebne do dynamicznie tworzonej tablicy
-  int R[MAX][MAX]; //Kolory
+  int *tmp_image;   // It's useful for dynamic creation of an array
+  int R[MAX][MAX];  // RGB Colors
   int G[MAX][MAX];
   int B[MAX][MAX];
-  _Bool color; //Jesli image bedzie colorowy, color==1
+  _Bool color;      // If image has color, color == 1, if it's B&W, color == 0
 } Image;
 
 int  read(FILE *input_file, Image *image);
