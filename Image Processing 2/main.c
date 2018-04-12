@@ -1,23 +1,21 @@
-/* RAFAL KROKOWSKI, PRZETWARZANIE OBRAZOW 2, 10.01.2017r.
+/* RAFAL KROKOWSKI, IMAGE PROCESSING 2, 10.01.2017r.
 
-   ZMIANY:
-   Program dziala teraz w oparciu o 2 struktury, ktore przechowuja informacje o imageie, jego
-   wielkosci i kolorze (zmienna typu _Bool) oraz wybranych opcjach wywolania programu.Podzielony
-   jest tez na moduly. Zamiast menu uzytkownika musimy teraz wywolac program z odpowiadnimi
-   opcjami -i, -o itd. W razie wybrania pliku w formacie .ppm zostanie on przeksztalcony na plik
-   .pgm do ktorego zostanie utworzona "szyta na miare" dynamiczna tablica. Program posiada takze
-   asercje sprawdzajace poprawnosc opcji czy formatu pliku.Dalsze przeksztalcenia odbywaja sie
-   tak samo jak wczesniej na pliku .pgm tylko w oparciu o struktury.
+   CHANGES:
+   Program now runs based on 2 structures, which stores info about the image, its size
+   and color (or lack of it) and chosen options (used flags). It's also modular now.
+   Instead of simple menu, it has to be now run with options -i, -o etc. If you want
+   to use .ppm format, program converts it to .pgm, from which custom made, dynamic
+   array will be created. Program has plenty of assertions, checking file format or
+   options. The rest is the same as in Image Processing 1 but based on structs.
 
-   TESTY:
-   Program kompiluje sie poprawnie za pomoca specjalnie stworzonegativeo Makefile. Do testow
-   wykorzystane byly pliki z katalogu /imageki, konkretnie Kubus i Lena w formatach .pgm
-   i .ppm. Testom poddane byly flagi [-i name], [-o name], [-p liczba], [-b liczba],
-   [-n], [-r], [-d], [-h]. Dwie pierwsze opcje nalezy wpisac z name pliku, w przeciwnym
-   razie wystapi blad uchwytu pliku, o czym poinformuje nas odpowiednia asercja. Jednak
-   odpowiednie dodanie opcji pozwala programowi dzialac poprawnie.
+   TESTS:
+   Program compiles correctly with custom made Makefile (not included in this repo).
+   For tests, .ppm and .pgm images has been used with all the following flags: [-i name],
+   [-o name], [-p number], [-b number], [-n], [-r], [-d], [-h]. You have to provide
+   file name for the -i and -o flags or there will be a file handle error (there is an
+   assertion for that as well).
 
-   CZESC PROGRAMU ODPOWIEDZIALNA ZA OBSLUGE OPCJI JEST WLASNOSCIA DR. MUSZYNSKIEGO
+   Flag parsing utility is dr.inz.Muszynski intellectual property.
 */
 
 #include <stdio.h>
