@@ -12,3 +12,7 @@ I've chosen these three, 'cause they're a bit longer and they consist of some mo
 ### Image Processing 2
 
 ### Stack-Based Normal Polish Notation Calculator
+
+Stack implementation with simple **push, pop, empty and print** methods.
+Additionally it has a **read_options** method which gets user input from the stream and calculates the output as if it was a
+[Polish Notation Calculator](https://en.wikipedia.org/wiki/Polish_notation) in which operators precede their operands.
