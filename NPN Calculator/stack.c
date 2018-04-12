@@ -1,98 +1,98 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "stos.h"
+#include "stack.h"
 
-void push(t_stos **stos, int pomoc)
+void push(t_stack **stack, int help)
 {
-   t_stos *tmp;
-   tmp = (t_stos*) malloc(sizeof(t_stos));
-   tmp->dana1 = pomoc;
-   tmp->dana2 = *stos;
-   *stos = tmp;
+   t_stack *tmp;
+   tmp = (t_stack*) malloc(sizeof(t_stack));
+   tmp->data1 = help;
+   tmp->data2 = *stack;
+   *stack = tmp;
 }
 
-int pop(t_stos **stos)
+int pop(t_stack **stack)
 {
-  int pomoc;
-  t_stos *tmp;
+  int help;
+  t_stack *tmp;
 
-  if(*stos != NULL){
-    pomoc = (*stos)->dana1;
-    tmp = *stos;
-    *stos = (*stos)->dana2;
+  if(*stack != NULL){
+    help = (*stack)->data1;
+    tmp = *stack;
+    *stack = (*stack)->data2;
     free(tmp);
-    return pomoc;
+    return help;
   }
   else
-    fprintf(stderr, "Stos jest pusty");
+    fprintf(stderr, "Stack is empty");
 }
 
-int empty(t_stos **stos)
+int empty(t_stack **stack)
 {
-  t_stos *tmp;
+  t_stack *tmp;
   int i;
 
-  if(*stos == NULL)
+  if(*stack == NULL)
     return 0;
-  tmp = *stos;
+  tmp = *stack;
   for(i = 0; tmp != NULL; i++)
-    tmp = tmp->dana2;
+    tmp = tmp->data2;
   return i;
 }
 
-void print(t_stos **stos)
+void print(t_stack **stack)
 {
-  t_stos *tmp;
-  tmp = *stos;
+  t_stack *tmp;
+  tmp = *stack;
   while(tmp != NULL){
-    printf("%d ", tmp->dana1);
-    tmp = tmp->dana2;
+    printf("%d ", tmp->data1);
+    tmp = tmp->data2;
   }
   printf("\n");
 }
 
-int czytaj_opcje(t_stos **stos, char *tab[], int i, int quit){
+int read_options(t_stack **stack, char *arr[], int i, int quit){
 
   int a, b;
 
-  switch(*tab[i]) {
+  switch(*arr[i]) {
 
   case '+':
-    a = pop(stos);
-    b = pop(stos);
-    push(stos, (a+b));
+    a = pop(stack);
+    b = pop(stack);
+    push(stack, (a+b));
     break;
   case '-':
-    a = pop(stos);
-    b = pop(stos);
-    push(stos, (b-a));
+    a = pop(stack);
+    b = pop(stack);
+    push(stack, (b-a));
     break;
   case '*':
-    a = pop(stos);
-    b = pop(stos);
-    push(stos, (a*b));
+    a = pop(stack);
+    b = pop(stack);
+    push(stack, (a*b));
     break;
   case '/':
-    a = pop(stos);
-    b = pop(stos);
-    push(stos, (b/a));
+    a = pop(stack);
+    b = pop(stack);
+    push(stack, (b/a));
     break;
   case '#':
-    a = pop(stos);
+    a = pop(stack);
     break;
   case '$':
-    a = pop(stos);
-    b = pop(stos);
-    push(stos, a);
-    push(stos, b);
+    a = pop(stack);
+    b = pop(stack);
+    push(stack, a);
+    push(stack, b);
     break;
   case '?':
-    print(stos);
+    print(stack);
     break;
   case '&':
-    a = pop(stos);
-    push(stos, a);
-    push(stos, a);
+    a = pop(stack);
+    push(stack, a);
+    push(stack, a);
     break;
   case 'q':
     quit == 1;

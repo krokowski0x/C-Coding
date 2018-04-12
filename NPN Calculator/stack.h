@@ -1,20 +1,20 @@
-#ifndef STOS_H
-#define STOS_H
+#ifndef STACK_H
+#define STSCK_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-typedef struct stos
+typedef struct stack
 {
-   int dana1;
-   struct stos *dana2;
-} t_stos;
+   int data1;
+   struct stack *data2;
+} t_stack;
 
-void push(t_stos **stos, int pomoc);
-int pop(t_stos **stos);
-int empty(t_stos **stos);
-void print(t_stos **stos);
-int czytaj_opcje(t_stos **stos, char *tab[], int i, int quit);
+void push(t_stack **stack, int pomoc);
+int  pop(t_stack **stack);
+int  empty(t_stack **stack);
+void print(t_stack **stack);
+int  read_options(t_stack **stack, char *arr[], int i, int quit);
 
 #endif
