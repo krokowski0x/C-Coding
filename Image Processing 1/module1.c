@@ -4,81 +4,81 @@
 #include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
 #include "module1.h"
 
-// Funkcja odczytu pliku
-int czytaj(FILE *plik_we, TObraz *obraz) {
-  char buf[DL_LINII];      /* bufor pomocniczy do czytania naglowka i komentarzy */
-  int znak;                /* zmienna pomocnicza do czytania komentarzy */
-  int koniec = 0;          /* czy napotkano koniec danych w pliku */
-  int i,j;
+// Funkcja odczytu fileu
+int read(FILE *input_file, Image *image) {
+  char buff[LINE_LENGTH];      /* buffor pomocniczy do czytania naglowka i komentarzy */
+  int character;                /* zmienna pomocnicza do czytania komentarzy */
+  int end = 0;          /* czy napotkano end danych w fileu */
+  int i, j;
 
-  /*Sprawdzenie czy podano prawid�owy uchwyt pliku */
-  if (plik_we == NULL) {
-    fprintf(stderr, "Blad: Nie podano uchwytu do pliku\n");
+  /*Sprawdzenie czy podano prawid�owy uchwyt fileu */
+  if (input_file == NULL) {
+    fprintf(stderr, "Error: No file handle\n");
     return(0);
   }
 
   /* Sprawdzenie "numeru magicznego" - powinien by� P2 */
-  if (fgets(buf, DL_LINII,plik_we) == NULL)   /* Wczytanie pierwszej linii pliku do bufora */
-    koniec = 1;                              /* Nie udalo sie? Koniec danych! */
+  if (fgets(buff, LINE_LENGTH,input_file) == NULL)   /* Wczytanie pierwszej linii fileu do buffora */
+    end = 1;                              /* Nie udalo sie? Koniec danych! */
 
-  if ( (buf[0] != 'P') || (buf[1]!='2') || koniec ) {  /* Czy jest magiczne "P2"? */
-    fprintf(stderr, "Blad: To nie jest plik PGM\n");
+  if ( (buff[0] != 'P') || (buff[1]!='2') || end ) {  /* Czy jest magiczne "P2"? */
+    fprintf(stderr, "Error: File type is not PGM\n");
     return(0);
   }
 
   /* Pominiecie komentarzy */
   do {
-    if ((znak = fgetc(plik_we)) == '#') {         /* Czy linia rozpoczyna sie od znaku '#'? */
-      if (fgets(buf,DL_LINII,plik_we) == NULL)  /* Przeczytaj ja do bufora                */
-	      koniec = 1;                   /* Zapamietaj ewentualny koniec danych */
+    if ((character = fgetc(input_file)) == '#') {         /* Czy linia rozpoczyna sie od characteru '#'? */
+      if (fgets(buff,LINE_LENGTH,input_file) == NULL)  /* Przeczytaj ja do buffora                */
+	      end = 1;                   /* Zapamietaj ewentualny end danych */
     }  else {
-      ungetc(znak, plik_we);                   /* Gdy przeczytany znak z poczatku linii */
+      ungetc(character, input_file);                   /* Gdy przeczytany character z poczatku linii */
     }                                         /* nie jest '#' zwroc go                 */
-  } while (znak == '#' && !koniec);   /* Powtarzaj dopoki sa linie komentarza */
-                                    /* i nie nastapil koniec danych         */
+  } while (character == '#' && !end);   /* Powtarzaj dopoki sa linie komentarza */
+                                    /* i nie nastapil end danych         */
 
-  /* Pobranie wymiarow obrazu i liczby odcieni szarosci */
-  if (fscanf(plik_we, "%d %d %d", obraz->wymx, obraz->wymy, obraz->szarosci) != 3) {
-    fprintf(stderr, "Blad: Brak wymiarow obrazu lub liczby stopni szarosci\n");
+  /* Pobranie wymiarow imageu i liczby odcieni greys */
+  if (fscanf(input_file, "%d %d %d", image->x, image->y, image->greys) != 3) {
+    fprintf(stderr, "Error: Image size or greys not found\n");
     return(0);
   }
-  /* Pobranie obrazu i zapisanie w tablicy obraz_pgm*/
-  for (i = 0; i < obraz->wymy; i++) {
-    for (j = 0; j < obraz->wymx; j++) {
-      if (fscanf(plik_we, "%d", &(obraz->obraz_pgm[i][j])) !=1 ) {
-	fprintf(stderr, "Blad: Niewlasciwe wymiary obrazu\n");
-	return(0);
+  /* Pobranie imageu i zapisanie w tablicy pgm_image*/
+  for (i = 0; i < image->y; i++) {
+    for (j = 0; j < image->x; j++) {
+      if (fscanf(input_file, "%d", &(image->pgm_image[i][j])) !=1 ) {
+	       fprintf(stderr, "Error: Wrong image size\n");
+	       return(0);
       }
     }
   }
-  return obraz->wymx * obraz->wymy;   /* Czytanie zakonczone sukcesem    */
+  return image->x * image->y;   /* Czytanie zakonczone sukcesem    */
 }                                    /* Zwroc liczbe wczytanych pikseli */
 
 
-/* Wyswietlenie obrazu o zadanej nazwie za pomoca programu "display"   */
-void wyswietl(char *n_pliku) {
-  char polecenie[DL_LINII];      /* bufor pomocniczy do zestawienia polecenia */
+/* Wyswietlenie imageu o zadanej nazwie za pomoca thresholdramu "display"   */
+void show(char *file_name) {
+  char command[LINE_LENGTH];      /* buffor pomocniczy do zestawienia polecenia */
 
-  strcpy(polecenie, "display ");  /* konstrukcja polecenia postaci */
-  strcat(polecenie, n_pliku);     /* display "nazwa_pliku" &       */
-  strcat(polecenie, " &");
-  printf("%s\n", polecenie);      /* wydruk kontrolny polecenia */
-  system(polecenie);             /* wykonanie polecenia        */
+  strcpy(command, "display ");  /* konstrukcja polecenia postaci */
+  strcat(command, file_name);     /* display "nazwa_fileu" &       */
+  strcat(command, " &");
+  printf("%s\n", command);      /* wydruk kontrolny polecenia */
+  system(command);             /* wykonanie polecenia        */
 }
 
-// Funkcja zapisujaca edytowany obraz
+// Funkcja zapisujaca edytowany image
 
-int zapisz(TObraz *obraz)
+int save(Image *image)
 {
-  FILE *plik;
+  FILE *file;
   int i,j;
-  plik = fopen("obraz.pgm","w");
-  /* Wy�wietlamy najpierw informacje o obrazie */
-  fprintf(plik, "P2\n %d %d\n %d\n", obraz->wymx, obraz->wymy, obraz->szarosci);
-  for (j = 0; j < obraz->wymy; j++){
-    for(i = 0; i < obraz->wymx; i++){
-      /* Zapisujemy do pliku kolejne piksele z tablicy */
-      fprintf(plik, "%d\n", obraz->obraz_pgm[i][j]);
+  file = fopen("image.pgm","w");
+  /* Wy�wietlamy najpierw informacje o imageie */
+  fprintf(file, "P2\n %d %d\n %d\n", image->x, image->y, image->greys);
+  for (j = 0; j < image->y; j++){
+    for(i = 0; i < image->x; i++){
+      /* Zapisujemy do fileu kolejne piksele z tablicy */
+      fprintf(file, "%d\n", image->pgm_image[i][j]);
 	}
  }
   return 0;
@@ -86,54 +86,54 @@ int zapisz(TObraz *obraz)
 
 // Funkcja negatywu
 
-int neg(TObraz *obraz)
+int negative(Image *image)
 {
   int i,j;
-  for (j = 0; j < obraz->wymy; j++){
-    for (i = 0; i < obraz->wymx; i++){
-      /* Od maksymalnej wartosci (szarosci) odejmujemy wartosc danego piksela */
-      obraz->obraz_pgm[i][j] = (obraz->szarosci - obraz->obraz_pgm[i][j]);
+  for (j = 0; j < image->y; j++){
+    for (i = 0; i < image->x; i++){
+      /* Od maksymalnej wartosci (greys) odejmujemy wartosc danego piksela */
+      image->pgm_image[i][j] = (image->greys - image->pgm_image[i][j]);
     }
   }
   return 0;
 }
 
-// Funkcja progowania
+// Funkcja thresholdowania
 
-int progow(TObraz *obraz)
+int threshold(Image *image)
 {
   int a,i,j;
-  float prog; /* Typ float, poniewaz prog bedzie ostatecznie ulamkiem */
-  printf("Podaj prog w procentach:\n");
+  float threshold; /* Typ float, poniewaz threshold bedzie ostatecznie ulamkiem */
+  printf("Enter threshold in percentage:\n");
   scanf("%d", &a);
-  prog = (a / 100 * (obraz->szarosci));
-  for(j = 0; j < obraz->wymy; j++){
-    for(i = 0; i < obraz->wymx; i++){
-      if(obraz->obraz_pgm[i][j] <= prog)
-	obraz->obraz_pgm[i][j] = 0;
+  threshold = (a / 100 * (image->greys));
+  for(j = 0; j < image->y; j++){
+    for(i = 0; i < image->x; i++){
+      if(image->pgm_image[i][j] <= threshold)
+	      image->pgm_image[i][j] = 0;
       else
-	obraz->obraz_pgm[i][j] = obraz->szarosci;
+	      image->pgm_image[i][j] = image->greys;
     }
   }
   return 0;
 }
 
-// Funkcja polprogowania bieli
+// Funkcja polthresholdowania bieli
 
-int polprogowB(TObraz *obraz)
+int halfThreshold(Image *image)
 {
   /* Funkcja analogiczna do poprzedniej */
   int a,i,j;
-  float prog;
-  printf("Podaj prog w procentach:\n");
+  float threshold;
+  printf("Enter threshold in percentage:\n");
   scanf("%d", &a);
-  prog = (a / 100 * (obraz->szarosci));
-  for(j = 0; j < obraz->wymy; j++){
-    for(i = 0; i < obraz->wymx; i++){
-      if(obraz->obraz_pgm[i][j]<=prog)
-	obraz->obraz_pgm[i][j] = obraz->obraz_pgm[i][j];
+  threshold = (a / 100 * (image->greys));
+  for(j = 0; j < image->y; j++){
+    for(i = 0; i < image->x; i++){
+      if(image->pgm_image[i][j]<=threshold)
+	      image->pgm_image[i][j] = image->pgm_image[i][j];
       else
-	obraz->obraz_pgm[i][j] = obraz->szarosci;
+	      image->pgm_image[i][j] = image->greys;
     }
   }
   return 0;
@@ -141,43 +141,43 @@ int polprogowB(TObraz *obraz)
 
 // Funkcja konturowania
 
-int kont(TObraz *obraz)
+int contour(Image *image)
 {
   int i,j;
   /* Pierwsze i ostatnie piksele nie maja innych 'obok' siebie, a wiec
      ucinamy po jednym pikselu z kazdej strony */
-  for(i = 0; i < (obraz->wymx - 1); i++){
- for(j = 0; j < (obraz->wymy - 1); j++){
+  for(i = 0; i < (image->x - 1); i++){
+    for(j = 0; j < (image->y - 1); j++){
       /* Wz�r na konturowanie */
-      obraz->obraz_pgm[i][j] = abs(obraz->obraz_pgm[i+1][j] - obraz->obraz_pgm[i][j]) +
-                               abs(obraz->obraz_pgm[i][j+1] - obraz->obraz_pgm[i][j]);
+      image->pgm_image[i][j] = abs(image->pgm_image[i+1][j] - image->pgm_image[i][j]) +
+                               abs(image->pgm_image[i][j+1] - image->pgm_image[i][j]);
     }
   }
-  /* Linie kodu napisane metoda prob i bledow. Cos dzialo sie z koncem pliku,
+  /* Linie kodu napisane metoda prob i bledow. Cos dzialo sie z koncem fileu,
      wiec ponownie ucinamy ostatnie piksele */
-  obraz->wymx = obraz->wymx--;
-    obraz->wymy = obraz->wymy--;
+  image->x = image->x--;
+  image->y = image->y--;
   return 0;
 }
 
 // Funkcja rozciagania histogramu
 
-int hist(TObraz *obraz)
+int histogram(Image *image)
 {
   int i,j,lmax,lmin;
-  /* W tej petli program szuka minimalnej i maksymalnej wartosci */
-  for(j = 0; j < obraz->wymy; j++){
-    for(i = 0; i < obraz->wymx; i++){
-      if(obraz->obraz_pgm[i][j] > lmax)
-	lmax = obraz->obraz_pgm[i][j];
-      if(obraz->obraz_pgm[i][j] < lmin)
-	lmin = obraz->obraz_pgm[i][j];
+  /* W tej petli thresholdram szuka minimalnej i maksymalnej wartosci */
+  for(j = 0; j < image->y; j++){
+    for(i = 0; i < image->x; i++){
+      if(image->pgm_image[i][j] > lmax)
+	      lmax = image->pgm_image[i][j];
+      if(image->pgm_image[i][j] < lmin)
+	      lmin = image->pgm_image[i][j];
     }
   }
   /* W tej petli dokonujemy faktycznego rociagniecia */
-  for(j = 0; j < obraz->wymy; j++){
-    for(i = 0; i < obraz->wymx; i++){
-      obraz->obraz_pgm[i][j] = (obraz->obraz_pgm[i][j] - lmin) / (lmax-lmin) * (obraz->szarosci);
+  for(j = 0; j < image->y; j++){
+    for(i = 0; i < image->x; i++){
+      image->pgm_image[i][j] = (image->pgm_image[i][j] - lmin) / (lmax-lmin) * (image->greys);
     }
   }
   return 0;

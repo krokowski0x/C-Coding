@@ -1,26 +1,26 @@
-#ifndef MODUL_H
-#define MODUL_H
+#ifndef MODULE_H
+#define MODULE_H
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>           /* Biblioteka dodana, aby wykorzystac funkcje ABS */
 
-#define MAX 512            /* Maksymalny rozmiar wczytywanego obrazu */
-#define DL_LINII 1024      /* Dlugosc buforow pomocniczych */
+#define MAX 512            /* Maksymalny rozmiar wczytywanego imageu */
+#define LINE_LENGTH 1024      /* Dlugosc buforow pomocniczych */
 
 typedef struct {
-  int wymx, wymy, szarosci;
-  int obraz_pgm[MAX][MAX];
-} TObraz;
+  int x, y, greys;
+  int pgm_image[MAX][MAX];
+} Image;
 
-int czytaj(FILE *plik_we, TObraz *obraz);
-void wyswietl(char *n_pliku);
-void zapisz(w_opcje *plik, TObraz *obraz);
-void neg(TObraz *obraz);
-void progow(TObraz *obraz);
-void polprogowB(TObraz *obraz);
-void kont(TObraz *obraz);
-void hist(TObraz *obraz);
+int read(FILE *input_file, Image *image);
+void show(char *file_name);
+void save(options *file, Image *image);
+void negative(Image *image);
+void threshold(Image *image);
+void halfThreshold(Image *image);
+void contour(Image *image);
+void histogram(Image *image);
 
 #endif

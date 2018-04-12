@@ -4,9 +4,9 @@
    odczyt.c nalezacej do dr.inz.Muszynskiego.
 
    TESTY:
-   Program byl sprawdzany dla plikow w formacie PGM znajdujacych sie
-   na diablo w folderze obrazki/, konkretnie dla obrazow kubus.pgm i
-   Lena.pgm. Po wybraniu metody przetwarzania obrazu i wywolaniu pozycji
+   Program byl sprawdzany dla fileow w formacie PGM znajdujacych sie
+   na diablo w folderze imageki/, konkretnie dla imageow kubus.pgm i
+   Lena.pgm. Po wybraniu metody przetwarzania imageu i wywolaniu pozycji
    "Zapisz i wyswietl" z menu, automatycznie wlacza sie program display,
    ktory wyswietla 2 OBRAZY - pierwotny i przetworzony - dla wygody
    porownania zmian. Dzieje sie tak dopoki nie zakonczymy dzialania
@@ -14,7 +14,7 @@
 
    Uwaga: Obraz kubus.pgm pozostanie wlasciwie niezmieniony w wyniku
    rozciagania histogramu z powodu swojej malej rozdzielczosci - nalezy
-   wykorzystac tu inny obraz, np. Lena.pgm.
+   wykorzystac tu inny image, np. Lena.pgm.
 
    Odpowiednie funkcje programu posiadaja potrzebne komentarze, jednak
    bardziej oczywiste fragmenty kodu bronia sie same (sa dosc oczywiste)
@@ -30,33 +30,33 @@
 // Funkcja MAIN
 
 int main() {
-  TObraz obraz;
-  int odczytano = 0;
-  FILE *plik;
-  char nazwa[100];
+  Image image;
+  int read = 0;
+  FILE *file;
+  char name[100];
   int a;
 
-  printf("Witaj w programie do przetwarzania obrazow!\n");
-  /* Wczytanie zawartosci wskazanego pliku do pamieci */
-  printf("Podaj nazwe pliku:\n");
-  scanf("%s", nazwa);
-  plik = fopen(nazwa,"r");
+  printf("Welcome to image processing app!\n");
+  /* Wczytanie zawartosci wskazanego fileu do pamieci */
+  printf("Your file name:\n");
+  scanf("%s", name);
+  file = fopen(name,"r");
 
-  if (plik != NULL)    /* co spowoduje zakomentowanie tego warunku */
-    odczytano = czytaj(plik, &obraz);
-  if (odczytano != 0)
-    wyswietl(nazwa);
+  if (file != NULL)    /* co spowoduje zakomentowanie tego warunku */
+    read = read(file, &image);
+  if (read != 0)
+    show(name);
 
   /* MENU UZYTKOWNIKA */
 
-  printf("Co mam zrobic z wczytanym obrazem?\n");
-      printf("1 - Negatyw\n");
-      printf("2 - Progowanie\n");
-      printf("3 - Polprogowanie bieli\n");
-      printf("4 - Konturowanie\n");
-      printf("5 - Rozciaganie histogramu\n");
-      printf("6 - Zapisz i wyswietl zmiany\n");
-      printf("7 - Zakonczenie dzialania programu\n");
+  printf("What should I do with this loaded image?\n");
+      printf("1 - Negative\n");
+      printf("2 - Thresholding\n");
+      printf("3 - White half-thresholding\n");
+      printf("4 - Contouring\n");
+      printf("5 - Histogram equalization\n");
+      printf("6 - Save and show changes\n");
+      printf("7 - Exit the app\n");
 
   while(a !=7 ) {  /* Warunek konca petli, konczy tez dzialanie programu */
     scanf("%d", &a);
@@ -64,40 +64,40 @@ int main() {
     switch (a) {
       /* Wywolujemy funkcje i informujemy o tym uzytkownika */
      case 1:
-       neg(&obraz);
-       printf("Negatyw wykonany poprawnie!\n");
+       negative(&image);
+       printf("Negative done correctly!\n");
        break;
      case 2:
-       progow(&obraz);
-       printf("Progowanie wykonane poprawnie!\n");
+       threshold(&image);
+       printf("Thresholding done correctly!\n");
        break;
      case 3:
-       polprogowB(&obraz);
-       printf("Polprogowanie bieli wykonane poprawnie!\n");
+       halfThreshold(&image);
+       printf("White half-thresholding done correctly!\n");
        break;
      case 4:
-       kont(&obraz);
-       printf("Konturowanie wykonane poprawnie!\n");
+       contour(&image);
+       printf("Contouring done correctly!\n");
        break;
      case 5:
-       hist(&obraz);
-       printf("Rozciaganie histogramu wykonane poprawnie!\n");
+       histogram(&image);
+       printf("Histogram equalization done correctly!\n");
        break;
      case 6:
-       zapisz(&obraz);
-       char nazwa[100]={"obraz.pgm"};
-       wyswietl(nazwa);
-       printf("Zapisano zmiany w pliku!\n");
+       save(&image);
+       char name[100]={"image.pgm"};
+       show(name);
+       printf("File changes saved successfully!\n");
        break;
      case 7:
-       printf("Zakonczenie dzialania programu!\n");
+       printf("App exited successfully!\n");
        break;
      default:
-       printf("Podanej wartosci nie ma w menu!\n");
+       printf("This value does not exist in the manu!\n");
        break;
      }
   }
 
-  fclose(plik);
+  fclose(file);
   return 0;
 }
